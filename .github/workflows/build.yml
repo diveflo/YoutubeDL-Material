@@ -2,7 +2,7 @@ name: build
 
 on:
   push:
-    branches: [master]
+    branches: [master, feat/*]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,12 +17,8 @@ jobs:
           cd backend
           npm install
           sudo npm install -g @angular/cli
-      - name: build frontend
+      - name: build
         run: ng build --prod
-      - name: build backend
-        run: |
-          cd backend
-          npm start
       - name: prepare artifact upload
         shell: pwsh
         run: |
