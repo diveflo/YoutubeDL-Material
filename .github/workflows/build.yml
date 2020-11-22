@@ -1,0 +1,44 @@
+name: build
+
+on:
+  push:
+    branches: [master]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: setup node
+        uses: actions/setup-node@v1
+      - name: install dependencies
+        run: |
+          npm install
+          cd backend
+          npm install
+          sudo npm install -g @angular/cli
+      - name: build frontend
+        run: ng build --prod
+      - name: build backend
+        run: |
+          cd backend
+          npm start
+      - name: prepare artifact upload
+        shell: pwsh
+        run: |
+          New-Item -Name build -ItemType Directory
+          Copy-Item -Path ./backend/appdata -Recurse -Destination ./build
+          Copy-Item -Path ./backend/authentication -Recurse -Destination ./build
+          Copy-Item -Path ./backend/public -Recurse -Destination ./build
+          Copy-Item -Path ./backend/*.js -Destination ./build
+          Copy-Item -Path ./backend/*.json -Destination ./build
+          New-Item -Path ./build -Name audio -ItemType Directory
+          New-Item -Path ./build -Name subscriptions -ItemType Directory
+          New-Item -Path ./build -Name video -ItemType Directory
+          New-Item -Path ./build -Name users -ItemType Directory
+      - name: upload build artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: youtubedl-material
+          path: build
+
